@@ -1,0 +1,393 @@
+* {
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* TOPBAR */
+.topbar-container {
+  width: 100%;
+  height: 9vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0px 0px 3px 0px #d3d3d3;
+}
+
+.indices-container {
+  width: 35%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  border-right: 1px solid #e0e0e0;
+}
+
+.nifty, .sensex {
+  display: flex;
+  align-items: center;
+}
+
+.nifty p, .sensex p {
+  margin-right: 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.index {
+  color: #666;
+}
+
+.index-points {
+  color: #df514c;
+}
+
+.percent {
+  color: #9b9b9b !important;
+}
+
+/* MENU */
+.menu-container {
+  width: 65%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.menus {
+  display: flex;
+  align-items: center;
+}
+
+.menus ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.menus ul li {
+  margin-right: 25px;
+}
+
+.menus ul li a {
+  text-decoration: none;
+}
+
+.menu {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.menu.selected {
+  color: #df514c;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  border-left: 1px solid #e0e0e0;
+  padding-left: 15px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #fbe3e6;
+  color: #df514c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  margin-right: 8px;
+}
+
+.username {
+  font-size: 0.8rem;
+  color: #9b9b9b;
+}
+
+/* DASHBOARD LAYOUT */
+.dashboard-container {
+  width: 100%;
+  height: 91vh;
+  display: flex;
+}
+
+.watchlist-container {
+  width: 35%;
+  height: 100%;
+  border-right: 1px solid #e0e0e0;
+  overflow-y: auto;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.search {
+  border: none;
+  width: 80%;
+  outline: none;
+  font-size: 0.8rem;
+}
+
+.counts {
+  font-size: 0.75rem;
+  color: #9b9b9b;
+}
+
+.watchlist-container .list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.watchlist-container .list li {
+  position: relative;
+  border-bottom: 1px solid #f3f3f3;
+  padding: 12px 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.watchlist-container .list li:hover {
+  background-color: #fbfbfb;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+}
+
+.itemInfo span {
+  margin-right: 8px;
+}
+
+.down {
+  color: #df514c !important;
+}
+
+.up {
+  color: #4caf50 !important;
+}
+
+/* HOVER ACTIONS */
+.actions {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  box-shadow: 0 0 5px #ddd;
+  border-radius: 4px;
+  padding: 2px 4px;
+}
+
+.actions button {
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.actions .buy {
+  background-color: #4184f3;
+  color: #fff;
+}
+
+.actions .sell {
+  background-color: #ff5722;
+  color: #fff;
+}
+
+.actions .action {
+  background: transparent;
+  color: #666;
+}
+
+.actions .icon {
+  font-size: 16px !important;
+  vertical-align: middle;
+}
+
+/* CONTENT (SUMMARY) */
+.content {
+  width: 65%;
+  height: 100%;
+  padding: 30px 40px;
+  overflow-y: auto;
+}
+
+.username h6 {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #444;
+}
+
+.divider {
+  border: none;
+  border-bottom: 1px solid #eee;
+  margin: 20px 0;
+}
+
+.section span p {
+  font-size: 1.1rem;
+  font-weight: 400;
+  color: #444;
+}
+
+.data {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.first {
+  width: 35%;
+}
+
+.first h3 {
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: #444;
+}
+
+.first p {
+  font-size: 0.75rem;
+  color: #9b9b9b;
+}
+
+.first .profit {
+  color: #4caf50;
+}
+
+.first small {
+  font-size: 0.8rem;
+}
+
+.data hr {
+  height: 40px;
+  border: none;
+  border-left: 1px solid #eee;
+  margin: 0 30px;
+}
+
+.second p {
+  font-size: 0.8rem;
+  color: #9b9b9b;
+  margin-bottom: 5px;
+}
+
+.second p span {
+  font-size: 0.85rem;
+  color: #444;
+  margin-left: 10px;
+}
+
+/* TABLES */
+.order-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.order-table th {
+  text-align: left;
+  font-size: 0.8rem;
+  color: #9b9b9b;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.order-table td {
+  font-size: 0.85rem;
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #444;
+}
+
+.profit {
+  color: #4caf50;
+}
+
+.loss {
+  color: #df514c;
+}
+
+/* FUNDS & ORDERS BUTTONS */
+.funds {
+  text-align: right;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+
+.funds p {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #9b9b9b;
+  margin-right: 15px;
+}
+
+.btn {
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  color: #fff;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.btn-green {
+  background: #4caf50;
+}
+
+.btn-blue {
+  background: #4184f3;
+}
+
+.no-orders {
+  text-align: center;
+  padding: 60px 0;
+  color: #9b9b9b;
+}
+
+.no-orders .btn {
+  display: inline-block;
+  margin-top: 15px;
+  background: #4184f3;
+}
+
