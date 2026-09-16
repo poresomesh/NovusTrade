@@ -1,0 +1,83 @@
+.container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 380px;
+  height: auto;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0px 8px 30px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.inputs {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 24px 20px 24px;
+}
+
+.inputs fieldset {
+  flex: 1;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin: 0;
+}
+
+.inputs fieldset legend {
+  font-size: 11px;
+  color: #777;
+  padding: 0 4px;
+}
+
+.inputs fieldset input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  padding: 4px 0;
+  box-sizing: border-box;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #eee;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.buttons span {
+  font-size: 12px;
+  color: #666;
+}
+
+.buttons .btn-orange {
+  background-color: #ff5722;
+  color: #ffffff;
+  padding: 7px 18px;
+  border-radius: 4px;
+  text-decoration: none;
+  margin-right: 8px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+}
+
+.buttons .btn-grey {
+  background-color: #eaeaea;
+  color: #555;
+  padding: 7px 16px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+}

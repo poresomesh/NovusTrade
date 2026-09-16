@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1e293b;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* हेडिंग्स हलके करण्यासाठी */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+  }
+
+  /* सर्व नंबर्स, टेबल्स आणि रकमेचा जाडपणा कमी करण्यासाठी */
+  td, 
+  .font-bold, 
+  .font-black {
+    font-weight: 500 !important;
+  }
+}

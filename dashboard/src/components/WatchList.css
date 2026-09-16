@@ -1,0 +1,40 @@
+/* Custom slim scrollbar */
+.watchlist-scroll-container::-webkit-scrollbar {
+  width: 5px;
+}
+.watchlist-scroll-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.watchlist-scroll-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.watchlist-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hover Action Buttons (Smooth Zerodha Style) */
+.watchlist-row {
+  position: relative;
+}
+
+.watchlist-row .action-buttons-group {
+  display: none !important;
+}
+
+.watchlist-row:hover .action-buttons-group {
+  display: flex !important;
+}
+
+.watchlist-row:hover .price-display-group {
+  display: none !important;
+}
+
+/* Flash color animation */
+.price-up {
+  background-color: rgba(16, 185, 129, 0.12) !important;
+}
+
+.price-down {
+  background-color: rgba(244, 63, 94, 0.12) !important;
+}

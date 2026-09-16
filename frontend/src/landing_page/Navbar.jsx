@@ -1,45 +1,63 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-function Navbar() {
-    return (
-        <div>
-            <nav class="navbar navbar-expand-lg border-bottom">
-                <div class="container-fluid">
-                    <Link class="navbar-brand" to="/">
-                        <img src="media/logo.svg" alt="logo" style={{width : "25%"}}/>
-                    </Link>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                            <li class="nav-item p-2">
-                                <Link class="nav-link active" aria-current="page" to="/signup">
-                                Signup</Link>
-                            </li>
-                            <li class="nav-item p-2 ">
-                                <Link class="nav-link active" to="/about">About</Link>
-                            </li>
+const Navbar = () => {
+  return (
+    <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5 sm:px-10">
+        {/* Brand Logo */}
+        <Link to="/" className="flex items-center gap-2">
+          <img
+            src="media/NewLogo.png"
+            alt="NovusTradeLogo"
+            className="h-8 sm:h-9 w-auto"
+          />
+        </Link>
 
-                            <li class="nav-item p-2">
-                                <Link class="nav-link active" aria-current="page" to="/products">Products</Link>
-                            </li>
+        {/* Navigation Links & Action Buttons */}
+        <nav className="flex items-center gap-6 text-xs font-medium text-slate-600 sm:text-sm">
+          <Link
+            to="/signup"
+            className="transition-colors hover:text-blue-600"
+          >
+            Signup
+          </Link>
+          <Link
+            to="/about"
+            className="transition-colors hover:text-blue-600"
+          >
+            About
+          </Link>
+          <Link
+            to="/products"
+            className="transition-colors hover:text-blue-600"
+          >
+            Products
+          </Link>
+          <Link
+            to="/pricing"
+            className="transition-colors hover:text-blue-600"
+          >
+            Pricing
+          </Link>
+          <Link
+            to="/support"
+            className="transition-colors hover:text-blue-600"
+          >
+            Support
+          </Link>
 
-                            <li class="nav-item p-2">
-                                <Link class="nav-link active" aria-current="page" to="/pricing">Pricing</Link>
-                            </li>
-
-                            <li class="nav-item p-2">
-                                <Link class="nav-link active" aria-current="page" to="/support">Support</Link>
-                            </li>
-                        </ul>
-                
-                    </div>
-                </div>
-            </nav>
-        </div>
-    )
-}
+          {/* Login / Dashboard Direct Action */}
+          <Link
+            to="/login"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-xs transition-all hover:bg-blue-700 active:scale-95"
+          >
+            Login
+          </Link>
+        </nav>
+      </div>
+    </header>
+  );
+};
 
 export default Navbar;
