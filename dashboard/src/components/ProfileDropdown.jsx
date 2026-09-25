@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
+const BACKEND_URL = "https://novustrade-backend.onrender.com";
+const FRONTEND_URL = "https://novustrade-frontend.onrender.com";
+
 const ProfileDropdown = ({ user, onClose, onLogout }) => {
   const username = user?.username || "somesh";
   const email = user?.email || "poresomesh@gmail.com";
   const clientId = user?.clientId || "NT7294";
 
-  // रिअल टाइम युझर फंड्स (Default ₹50,000)
+  // Real-time funds
   const [availableFunds, setAvailableFunds] = useState(50000);
 
   useEffect(() => {
@@ -18,7 +21,7 @@ const ProfileDropdown = ({ user, onClose, onLogout }) => {
         const queryUserId = params.get("userId") || user?.id || localStorage.getItem("userId") || "";
         
         const res = await axios.get(
-          `https://novustrade-backend.onrender.com/userFunds?userId=${queryUserId}&email=${encodeURIComponent(queryEmail)}`
+          `${BACKEND_URL}/userFunds?userId=${queryUserId}&email=${encodeURIComponent(queryEmail)}`
         );
         if (res.data && typeof res.data.funds === "number") {
           setAvailableFunds(res.data.funds);
@@ -47,31 +50,27 @@ const ProfileDropdown = ({ user, onClose, onLogout }) => {
     }
   };
 
-  // संपूर्ण लॉगआउट हँडलर
+  // Full logout handler
   const handleFullLogout = async () => {
     try {
-      // 1. बॅकएंडवर लॉगआउट रिक्वेस्ट पाठवणे
-      await axios.post("https://novustrade-backend.onrender.com/logout", {}, { withCredentials: true });
+      await axios.post(`${BACKEND_URL}/logout`, {}, { withCredentials: true });
     } catch (err) {
       console.warn("Backend logout warning:", err.message);
     } finally {
-      // 2. पालकाकडून आलेला प्रॉप असल्यास चालवणे
       if (typeof onLogout === "function") {
         onLogout();
       }
 
-      // 3. लोकल स्टोरेज आणि सेशन पूर्णपणे रिकामे करणे
       localStorage.removeItem("token");
       localStorage.removeItem("userId");
       localStorage.removeItem("email");
       localStorage.removeItem("username");
       sessionStorage.clear();
 
-      // 4. ब्राऊझरमधील टोकन कुकी नष्ट करणे
       document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 
-      // 5. मुख्य लँडिंग/लॉगिन ॲपवर रिडायरेक्ट करणे
-      window.location.href = "http://localhost:5173";
+      // Render live frontend var redirect
+      window.location.href = `${FRONTEND_URL}/login`;
     }
   };
 
