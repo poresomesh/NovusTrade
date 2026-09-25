@@ -47,7 +47,7 @@ const Login = () => {
         localStorage.setItem("email", finalEmail);
 
         // Redirect across ports to Dashboard (5174) with complete credentials encoded
-        window.location.href = `http://localhost:5174/?userId=${encodeURIComponent(
+        window.location.href = `https://novustrade-gses.onrender.com/?userId=${encodeURIComponent(
           finalUserId
         )}&username=${encodeURIComponent(
           finalUsername
