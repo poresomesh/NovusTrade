@@ -41,7 +41,7 @@ const Signup = () => {
           localStorage.setItem("username", user.username || username);
         }
         // Direct jump to Dashboard
-        window.location.href = `http://localhost:5174/?userId=${user?._id || ""}`;
+        window.location.href = `https://novustrade-gses.onrender.com/?userId=${user?._id || ""}`;
       } else {
         setErrorMessage(message || "Signup failed. Please try again.");
       }
