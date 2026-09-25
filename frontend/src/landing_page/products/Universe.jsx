@@ -12,68 +12,68 @@ function Universe() {
 
                 <div className="col-4 p-3 mt-5">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Fund+House"
+                        src="media/NovusAssets.png"
                         alt="Asset Management"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Our asset management venture creating simple index funds.
+                       Smart index-tracking and automated asset management for passive, long-term wealth creation.
                     </p>
                 </div>
 
                 <div className="col-4 p-3 mt-5">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Sensibull+AI"
+                        src="media/NovusRAG.png"
                         alt="Options Trading"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Options trading platform with automated strategy builders.
+                       RAG-driven conversational AI assistant providing real-time stock insights, market analysis, and trade suggestions.
                     </p>
                 </div>
 
                 <div className="col-4 p-3 mt-5">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Tijori+Data"
+                        src="media/NovusMarket.png"
                         alt="Investment Research"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Fundamental research platform with deep sector breakdowns.
+                        Deep fundamental research and real-time financial metrics to evaluate company balance sheets effortlessly.
                     </p>
                 </div>
 
 
                 <div className="col-4 p-3 mt-4">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Streak+Algo"
+                        src="media/NovusAlgo.png"
                         alt="Algo Trading"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Systematic trading platform for algo creation without coding.
+                       Build, backtest, and deploy algorithmic trading strategies with zero code requirement.
                     </p>
                 </div>
 
                 <div className="col-4 p-3 mt-4">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Smallcase"
+                        src="media/NovusMarketIntel.png"
                         alt="Thematic Investing"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Thematic investing platform building diversified portfolios.
+                        Invest in curated, theme-based stock baskets aligned with emerging sectors and market trends.
                     </p>
                 </div>
 
                 <div className="col-4 p-3 mt-4">
                     <img
-                        src="https://dummyimage.com/180x50/e9ecef/495057&text=Ditto+Risk"
+                        src="media/NovusMindGuard.png"
                         alt="Insurance"
                         className="img-fluid"
                     />
                     <p className="text-small text-muted mt-3">
-                        Personalized advice on term life and health insurance.
+                       Machine learning engine that tracks emotional tilt, halts revenge trading, and protects user capital.
                     </p>
                 </div>
 

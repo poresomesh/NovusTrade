@@ -4,19 +4,19 @@ function Team() {
   return (
     <div className="container border-top mb-5">
       <div className="row p-3 mt-5">
-        <h1 className="fs-2 text-center text-muted">Architect & Builder</h1>
+        <h1 className="fs-2 text-center text-muted">Developer & CEO </h1>
       </div>
 
       <div className="row p-3 text-muted fs-6" style={{ lineHeight: "1.8" }}>
-        <div className="col-6 p-4 text-center">
+        <div className="col-6 p-4 text-center d-flex flex-column align-items-center">
           <img
             src="media/circular_profile_pic.png"
             alt="Founder"
-            className="rounded-circle mb-3"
+            className="rounded-circle mb-3 d-block mx-auto"
             style={{ width: "50%" }}
           />
-          <h4 className="mt-3">Somesh Pore</h4>
-          <h6>Full-Stack & AI Developer</h6>
+          <h4 className="mt-2 text-center w-100">Somesh Pore</h4>
+          <h6 className="text-center w-100">Full-Stack & AI Developer</h6>
         </div>
 
         <div className="col-6 p-4 mt-5">

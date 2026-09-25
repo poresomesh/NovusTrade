@@ -73,7 +73,7 @@ const Login = () => {
             Login to NovusTrade
           </h2>
           <p className="mt-1.5 text-xs text-slate-500">
-            Access your Kite dashboard, holdings, and order book
+            Access your dashboard, holdings, and order book
           </p>
         </div>
 

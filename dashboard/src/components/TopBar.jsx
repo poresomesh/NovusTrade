@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
 import Menu from "./Menu";
 import ProfileDropdown from "./ProfileDropdown";
 import TradingViewChart from "./TradingViewChart";
 // तुमच्या प्रोजेक्टच्या रचनेनुसार NewLogo.png इम्पोर्ट करा:
 import newLogo from "../assets/NewLogo.png";
+
+// Socket instance (डॅशबोर्डच्या सॉकेटशी कनेक्ट)
+const socket = io("http://localhost:3002", {
+  withCredentials: true,
+});
 
 const TopBar = ({ user, onLogout }) => {
   const navigate = useNavigate();
@@ -13,10 +19,103 @@ const TopBar = ({ user, onLogout }) => {
 
   const username = user?.username || localStorage.getItem("username") || "somesh";
 
+  // रिअल-टाइम लाइव्ह इंडायसेस स्टेट
+  const [liveIndices, setLiveIndices] = useState({
+    nifty: { price: 23346.90, change: 129.30, percent: 0.56, isUp: true },
+    sensex: { price: 81500.00, change: 0.00, percent: 0.00, isUp: true },
+    banknifty: { price: 56364.05, change: 71.60, percent: 0.13, isUp: true },
+  });
+
+  // बॅकएंड सॉकेटवरून येणारे रिअल-टाइम टिक्स ऐकणे
+  useEffect(() => {
+    const handleMarketTick = (liveCache) => {
+      if (!Array.isArray(liveCache) || liveCache.length === 0) return;
+
+      const n50 = liveCache.find(
+        (s) =>
+          s.symbol === "NIFTY 50" ||
+          s.symbol === "NIFTY" ||
+          String(s.token).trim() === "99926000"
+      );
+      const snx = liveCache.find(
+        (s) =>
+          s.symbol === "SENSEX" ||
+          String(s.token).trim() === "99919000" ||
+          String(s.token).trim() === "1"
+      );
+      const bnf = liveCache.find(
+        (s) =>
+          s.symbol === "BANKNIFTY" ||
+          String(s.token).trim() === "99926009"
+      );
+
+      setLiveIndices((prev) => ({
+        nifty: n50
+          ? {
+              price: Number(n50.price) || prev.nifty.price,
+              change: Number(n50.change) || 0,
+              percent: Number(n50.percentChange) || 0,
+              isUp: (Number(n50.change) || 0) >= 0,
+            }
+          : prev.nifty,
+        sensex: snx
+          ? {
+              price: Number(snx.price) || prev.sensex.price,
+              change: Number(snx.change) || 0,
+              percent: Number(snx.percentChange) || 0,
+              isUp: (Number(snx.change) || 0) >= 0,
+            }
+          : prev.sensex,
+        banknifty: bnf
+          ? {
+              price: Number(bnf.price) || prev.banknifty.price,
+              change: Number(bnf.change) || 0,
+              percent: Number(bnf.percentChange) || 0,
+              isUp: (Number(bnf.change) || 0) >= 0,
+            }
+          : prev.banknifty,
+      }));
+    };
+
+    socket.on("market-tick", handleMarketTick);
+
+    return () => {
+      socket.off("market-tick", handleMarketTick);
+    };
+  }, []);
+
+  // लाइव्ह व्हॅल्यूजनुसार फॉरमॅट केलेली यादी
   const indices = [
-    { name: "NIFTY 50", symbol: "NIFTY", value: "23,219.75", change: "+0.44%", isUp: true },
-    { name: "SENSEX", symbol: "SENSEX", value: "74,285.80", change: "+0.38%", isUp: true },
-    { name: "BANKNIFTY", symbol: "BANKNIFTY", value: "56,222.95", change: "+0.77%", isUp: true },
+    {
+      name: "NIFTY 50",
+      symbol: "NIFTY",
+      value: liveIndices.nifty.price.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      change: `${liveIndices.nifty.change >= 0 ? "+" : ""}${liveIndices.nifty.percent.toFixed(2)}%`,
+      isUp: liveIndices.nifty.isUp,
+    },
+    {
+      name: "SENSEX",
+      symbol: "SENSEX",
+      value: liveIndices.sensex.price.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      change: `${liveIndices.sensex.change >= 0 ? "+" : ""}${liveIndices.sensex.percent.toFixed(2)}%`,
+      isUp: liveIndices.sensex.isUp,
+    },
+    {
+      name: "BANKNIFTY",
+      symbol: "BANKNIFTY",
+      value: liveIndices.banknifty.price.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }),
+      change: `${liveIndices.banknifty.change >= 0 ? "+" : ""}${liveIndices.banknifty.percent.toFixed(2)}%`,
+      isUp: liveIndices.banknifty.isUp,
+    },
   ];
 
   // लोगोवर क्लिक केल्यावर थेट "/" (TradingAssistant) वर जाण्यासाठी
@@ -33,16 +132,15 @@ const TopBar = ({ user, onLogout }) => {
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-2xs">
         {/* Row 1: Logo & Nav */}
         <div className="flex h-14 items-center justify-between px-6">
-          
           {/* Logo Container (Clickable to "/") */}
-          <div 
+          <div
             onClick={handleLogoClick}
             className="flex items-center gap-3 cursor-pointer group select-none"
             title="Go to Trading Assistant"
           >
-            <img 
-              src={newLogo} 
-              alt="NovusTrade Logo" 
+            <img
+              src={newLogo}
+              alt="NovusTrade Logo"
               className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
             />
           </div>

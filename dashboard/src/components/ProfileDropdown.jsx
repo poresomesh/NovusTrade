@@ -1,28 +1,79 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const ProfileDropdown = ({ user, onClose, onLogout }) => {
   const username = user?.username || "somesh";
   const email = user?.email || "poresomesh@gmail.com";
   const clientId = user?.clientId || "NT7294";
 
-// Default to false (Light Mode) unless explicitly saved as 'dark'
-const [isDark, setIsDark] = useState(() => {
-  return localStorage.getItem("theme") === "dark";
-});
+  // रिअल टाइम युझर फंड्स (Default ₹50,000)
+  const [availableFunds, setAvailableFunds] = useState(50000);
 
-const toggleTheme = () => {
-  const root = document.documentElement;
-  if (isDark) {
-    root.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-    setIsDark(false);
-  } else {
-    root.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-    setIsDark(true);
-  }
-};
+  useEffect(() => {
+    const fetchUserFunds = async () => {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const queryEmail = params.get("email") || email || localStorage.getItem("email") || "";
+        const queryUserId = params.get("userId") || user?.id || localStorage.getItem("userId") || "";
+        
+        const res = await axios.get(
+          `http://localhost:3002/userFunds?userId=${queryUserId}&email=${encodeURIComponent(queryEmail)}`
+        );
+        if (res.data && typeof res.data.funds === "number") {
+          setAvailableFunds(res.data.funds);
+        }
+      } catch (err) {
+        console.warn("Funds fetch error in ProfileDropdown:", err.message);
+      }
+    };
+    fetchUserFunds();
+  }, [user, email]);
+
+  const [isDark, setIsDark] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+      setIsDark(false);
+    } else {
+      root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+      setIsDark(true);
+    }
+  };
+
+  // संपूर्ण लॉगआउट हँडलर
+  const handleFullLogout = async () => {
+    try {
+      // 1. बॅकएंडवर लॉगआउट रिक्वेस्ट पाठवणे
+      await axios.post("http://localhost:3002/logout", {}, { withCredentials: true });
+    } catch (err) {
+      console.warn("Backend logout warning:", err.message);
+    } finally {
+      // 2. पालकाकडून आलेला प्रॉप असल्यास चालवणे
+      if (typeof onLogout === "function") {
+        onLogout();
+      }
+
+      // 3. लोकल स्टोरेज आणि सेशन पूर्णपणे रिकामे करणे
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("email");
+      localStorage.removeItem("username");
+      sessionStorage.clear();
+
+      // 4. ब्राऊझरमधील टोकन कुकी नष्ट करणे
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+      // 5. मुख्य लँडिंग/लॉगिन ॲपवर रिडायरेक्ट करणे
+      window.location.href = "http://localhost:5173";
+    }
+  };
 
   return (
     <div
@@ -67,7 +118,9 @@ const toggleTheme = () => {
       >
         <div className={`rounded-xl p-2.5 ${isDark ? "bg-[#1e293b]" : "bg-slate-50"}`}>
           <span className="block text-[10px] font-medium text-slate-400">Available Margin</span>
-          <span className="font-bold">₹1,24,500.00</span>
+          <span className="font-bold">
+            ₹{Number(availableFunds).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+          </span>
         </div>
         <div className={`rounded-xl p-2.5 ${isDark ? "bg-[#1e293b]" : "bg-slate-50"}`}>
           <span className="block text-[10px] font-medium text-slate-400">Trading Segments</span>
@@ -142,7 +195,8 @@ const toggleTheme = () => {
       {/* 5. Logout */}
       <div className={`border-t pt-2.5 ${isDark ? "border-slate-800" : "border-slate-100"}`}>
         <button
-          onClick={onLogout}
+          type="button"
+          onClick={handleFullLogout}
           className={`w-full rounded-xl px-3 py-2 text-center text-xs font-bold transition-all cursor-pointer ${
             isDark
               ? "bg-rose-950/40 text-rose-400 hover:bg-rose-900/50"

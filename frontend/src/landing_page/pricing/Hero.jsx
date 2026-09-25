@@ -15,37 +15,37 @@ function Hero() {
             <div className="row p-5 mt-5 text-center">
                 <div className="col-4 p-4">
                     <img
-                        src="https://dummyimage.com/150x120/0d6efd/ffffff&text=%E2%82%B90"
-                        alt="Free Equity"
+                        src="media/Brokrage.png"
+                        alt="Free Equity Delivery"
                         className="img-fluid mb-3"
                     />
                     <h1 className="fs-3">Free equity delivery</h1>
                     <p className="text-muted mt-3">
-                        All equity delivery investments (NSE, BSE) are absolutely free — ₹0 brokerage.
+                       All equity delivery investments (NSE, BSE) are 100% free with zero commission.
                     </p>
                 </div>
 
                 <div className="col-4 p-4">
                     <img
-                        src="https://dummyimage.com/150x120/198754/ffffff&text=%E2%82%B920"
+                        src="media/BrokrageAmount.png"
                         alt="Intraday Trades"
                         className="img-fluid mb-3"
                     />
                     <h1 className="fs-3">Intraday and F&O trades</h1>
                     <p className="text-muted mt-3">
-                        Flat ₹20 or 0.03% (whichever is lower) per executed order on intraday trades across equity, currency, and commodity.
+                        Flat ₹20 or 0.03% (whichever is lower) per executed order across Equity, F&O, and Commodity.
                     </p>
                 </div>
 
                 <div className="col-4 p-4">
                     <img
-                        src="https://dummyimage.com/150x120/6f42c1/ffffff&text=%E2%82%B90"
+                        src="media/MutualFund.png"
                         alt="Free Mutual Funds"
                         className="img-fluid mb-3"
                     />
                     <h1 className="fs-3">Free direct MF</h1>
                     <p className="text-muted mt-3">
-                        All direct mutual fund investments are completely free — zero commissions and no DP charges.
+                        All direct mutual fund investments are completely free — zero commissions, zero distributor fees, and no DP transaction charges.
                     </p>
                 </div>
             </div>

@@ -26,7 +26,6 @@ const PORT = process.env.PORT || 3002;
 const MONGO_URL = process.env.MONGO_URL;
 const JWT_SECRET = process.env.JWT_SECRET || "YOUR_SECRET_KEY";
 
-// Socket.io Setup
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -35,7 +34,6 @@ const io = new Server(server, {
   },
 });
 
-// Middleware
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://localhost:5174"],
@@ -46,12 +44,10 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Connect to MongoDB first, then start Server
 mongoose
   .connect(MONGO_URL)
   .then(() => {
     console.log("MongoDB connected successfully.");
-
     server.listen(PORT, () => {
       console.log(`NovusTrade Engine & API running on port ${PORT}`);
     });
@@ -61,36 +57,29 @@ mongoose
   });
 
 // --- AUTHENTICATION ROUTES ---
-
-// 1. Signup Route
 app.post("/signup", async (req, res) => {
   try {
     const { email, password, username } = req.body;
-
     if (!email || !password || !username) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
-
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists with this email" });
     }
-
     const hashedPassword = await bcrypt.hash(password, 12);
     const user = await UserModel.create({
       email,
       username,
       password: hashedPassword,
+      funds: 50000,
     });
-
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "3d" });
-
     res.cookie("token", token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-
     return res.status(201).json({
       success: true,
       message: "User signed up successfully",
@@ -98,38 +87,30 @@ app.post("/signup", async (req, res) => {
       user: { id: user._id, username: user.username, email: user.email },
     });
   } catch (error) {
-    console.error("Signup error:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
-// 2. Login Route
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ success: false, message: "Email and password are required" });
     }
-
     const user = await UserModel.findOne({ email });
     if (!user) {
       return res.status(400).json({ success: false, message: "Invalid email or password" });
     }
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({ success: false, message: "Invalid email or password" });
     }
-
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "3d" });
-
     res.cookie("token", token, {
       httpOnly: false,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
-
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
@@ -137,167 +118,226 @@ app.post("/login", async (req, res) => {
       user: { id: user._id, username: user.username, email: user.email },
     });
   } catch (error) {
-    console.error("Login error:", error);
     return res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
-// --- TRADING / DASHBOARD ROUTES ---
+app.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+  return res.status(200).json({ success: true, message: "Logged out successfully" });
+});
 
-// 3. User Holdings (Auto-resolve user to avoid empty array)
+// --- TRADING / PORTFOLIO ROUTES ---
 app.get("/allHoldings", async (req, res) => {
   try {
     let { userId, email } = req.query;
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      const user = email
-        ? await UserModel.findOne({ email })
-        : await UserModel.findOne();
+      const user = email ? await UserModel.findOne({ email }) : await UserModel.findOne();
       if (user) userId = user._id;
     }
-
     const query = userId && mongoose.Types.ObjectId.isValid(userId) ? { userId } : {};
     const userHoldings = await HoldingsModel.find(query);
     return res.status(200).json(userHoldings);
   } catch (error) {
-    console.error("Error fetching holdings:", error);
     return res.status(500).json({ message: "Failed to fetch holdings" });
   }
 });
 
-// 4. User Positions (Auto-resolve user to avoid empty array)
 app.get("/allPositions", async (req, res) => {
   try {
     let { userId, email } = req.query;
-
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      const user = email
-        ? await UserModel.findOne({ email })
-        : await UserModel.findOne();
+      const user = email ? await UserModel.findOne({ email }) : await UserModel.findOne();
       if (user) userId = user._id;
     }
-
     const query = userId && mongoose.Types.ObjectId.isValid(userId) ? { userId } : {};
     const userPositions = await PositionsModel.find(query);
     return res.status(200).json(userPositions);
   } catch (error) {
-    console.error("Error fetching positions:", error);
     return res.status(500).json({ message: "Failed to fetch positions" });
   }
 });
-// 5. User Orders (Fixed 500 CastError)
+
 app.get("/allOrders", async (req, res) => {
   try {
     let { userId, email } = req.query;
-
-    // जर userId नसेल किंवा इनव्हॅलिड असेल, तर युझर शोधा
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      const user = email 
-        ? await UserModel.findOne({ email }) 
-        : await UserModel.findOne();
+      const user = email ? await UserModel.findOne({ email }) : await UserModel.findOne();
       if (user) userId = user._id;
     }
-
     const query = userId ? { userId } : {};
     const userOrders = await OrdersModel.find(query).sort({ createdAt: -1 });
     return res.status(200).json(userOrders);
   } catch (error) {
-    console.error("Error fetching orders:", error);
-    return res.status(500).json({ message: "Failed to fetch orders", error: error.message });
+    return res.status(500).json({ message: "Failed to fetch orders" });
   }
 });
 
-/// 6. Create New Order (Clean & Robust)
+// --- NEW ORDER EXECUTION WITH TOAST-FRIENDLY VALIDATION ---
 app.post("/newOrder", async (req, res) => {
   try {
     let { name, qty, price, mode, userId, email, product } = req.body;
-
-    // युझर शोधणे (जर आयडी नसेल तर ईमेलवरून किंवा पहिला युझर)
     let user = null;
-    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-      user = await UserModel.findById(userId);
-    }
-    if (!user && email) {
-      user = await UserModel.findOne({ email });
-    }
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) user = await UserModel.findById(userId);
+    if (!user && email) user = await UserModel.findOne({ email });
+    if (!user) user = await UserModel.findOne();
     if (!user) {
-      user = await UserModel.findOne();
+      return res.status(404).json({ success: false, message: "User account not found!" });
     }
 
-    const validUserId = user ? user._id : new mongoose.Types.ObjectId();
+    if (user.funds === undefined || user.funds === null) user.funds = 50000;
 
-    const orderQty = Number(qty) || 1;
+    const orderQty = Number(qty);
     const orderPrice = Number(price) || 100;
     const orderMode = (mode || "BUY").toUpperCase();
 
-    // 1. Orders Collection मध्ये सेव्ह करा
+    if (!orderQty || isNaN(orderQty) || orderQty <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid quantity! Quantity must be at least 1.",
+      });
+    }
+
+    const totalOrderAmount = orderQty * orderPrice;
+
+    if (orderMode === "BUY") {
+      if (user.funds < totalOrderAmount) {
+        return res.status(400).json({
+          success: false,
+          message: `Insufficient balance! Required: ₹${totalOrderAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}, Available: ₹${Number(user.funds).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        });
+      }
+
+      user.funds -= totalOrderAmount;
+      await user.save();
+
+      let holding = await HoldingsModel.findOne({ userId: user._id, name });
+      if (holding) {
+        const totalQty = Number(holding.qty) + orderQty;
+        holding.avg = ((Number(holding.qty) * Number(holding.avg)) + totalOrderAmount) / totalQty;
+        holding.qty = totalQty;
+        holding.price = orderPrice;
+        await holding.save();
+      } else {
+        await HoldingsModel.create({
+          userId: user._id,
+          name,
+          qty: orderQty,
+          avg: orderPrice,
+          price: orderPrice,
+          net: 0,
+          day: 0,
+        });
+      }
+
+      let position = await PositionsModel.findOne({ userId: user._id, name });
+      if (position) {
+        const totalQty = Number(position.qty) + orderQty;
+        position.avg = ((Number(position.qty) * Number(position.avg)) + totalOrderAmount) / totalQty;
+        position.qty = totalQty;
+        position.price = orderPrice;
+        await position.save();
+      } else {
+        await PositionsModel.create({
+          userId: user._id,
+          product: product || "CNC",
+          name,
+          qty: orderQty,
+          avg: orderPrice,
+          price: orderPrice,
+          net: 0,
+          day: 0,
+          isLoss: false,
+        });
+      }
+    }
+
+    if (orderMode === "SELL") {
+      let holding = await HoldingsModel.findOne({ userId: user._id, name });
+      let position = await PositionsModel.findOne({ userId: user._id, name });
+
+      const availableQty = holding ? Number(holding.qty) : (position ? Number(position.qty) : 0);
+
+      if (availableQty <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: `You don't have enough shares! You own 0 shares of ${name}.`,
+        });
+      }
+
+      if (orderQty > availableQty) {
+        return res.status(400).json({
+          success: false,
+          message: `You don't have enough shares! You own only ${availableQty} shares of ${name}, but trying to sell ${orderQty}.`,
+        });
+      }
+
+      user.funds += totalOrderAmount;
+      await user.save();
+
+      if (holding) {
+        const currentQty = Number(holding.qty);
+        if (currentQty <= orderQty) {
+          await HoldingsModel.deleteOne({ _id: holding._id });
+        } else {
+          holding.qty = currentQty - orderQty;
+          await holding.save();
+        }
+      }
+
+      if (position) {
+        const currentPosQty = Number(position.qty);
+        if (currentPosQty <= orderQty) {
+          await PositionsModel.deleteOne({ _id: position._id });
+        } else {
+          position.qty = currentPosQty - orderQty;
+          await position.save();
+        }
+      }
+    }
+
     const newOrder = new OrdersModel({
       name,
       qty: orderQty,
       price: orderPrice,
       mode: orderMode,
-      userId: validUserId,
+      userId: user._id,
       product: product || "CNC",
+      createdAt: new Date(),
     });
     await newOrder.save();
 
-    // 2. BUY Logic (Holdings & Positions)
-    if (orderMode === "BUY") {
-      try {
-        // Holdings Update
-        let holding = await HoldingsModel.findOne({ userId: validUserId, name });
-        if (holding) {
-          const totalQty = Number(holding.qty) + orderQty;
-          holding.avg = ((Number(holding.qty) * Number(holding.avg)) + (orderQty * orderPrice)) / totalQty;
-          holding.qty = totalQty;
-          holding.price = orderPrice;
-          await holding.save();
-        } else {
-          await HoldingsModel.create({
-            userId: validUserId,
-            name,
-            qty: orderQty,
-            avg: orderPrice,
-            price: orderPrice,
-            net: 0,
-            day: 0,
-          });
-        }
-
-        // Positions Update
-        let position = await PositionsModel.findOne({ userId: validUserId, name });
-        if (position) {
-          const totalQty = Number(position.qty) + orderQty;
-          position.avg = ((Number(position.qty) * Number(position.avg)) + (orderQty * orderPrice)) / totalQty;
-          position.qty = totalQty;
-          position.price = orderPrice;
-          await position.save();
-        } else {
-          await PositionsModel.create({
-            userId: validUserId,
-            product: product || "CNC",
-            name,
-            qty: orderQty,
-            avg: orderPrice,
-            price: orderPrice,
-            net: 0,
-            day: 0,
-            isLoss: false,
-          });
-        }
-      } catch (subErr) {
-        console.warn("Holdings/Positions update warning:", subErr.message);
-      }
-    }
-
     return res.status(201).json({
       success: true,
-      message: `Order executed successfully for ${orderMode} ${orderQty} ${name}`,
+      message: `Order executed: ${orderMode} ${orderQty} ${name}`,
+      updatedFunds: user.funds,
       order: newOrder,
     });
   } catch (error) {
-    console.error("Order execution error:", error);
-    return res.status(500).json({ message: "Failed to process order", error: error.message });
+    return res.status(500).json({ success: false, message: "Order failed", error: error.message });
+  }
+});
+
+app.get("/userFunds", async (req, res) => {
+  try {
+    let { userId, email } = req.query;
+    let user = null;
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) user = await UserModel.findById(userId);
+    if (!user && email) user = await UserModel.findOne({ email });
+    if (!user) user = await UserModel.findOne();
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.funds === undefined || user.funds === null) {
+      user.funds = 50000;
+      await user.save();
+    }
+    return res.status(200).json({ funds: user.funds });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch funds" });
   }
 });
 
@@ -312,7 +352,7 @@ const stockSchema = new mongoose.Schema({
   exchangeType: Number,
 });
 
-const Stock = mongoose.models.Stock || mongoose.model("Stock", stockSchema , "stocks");
+const Stock = mongoose.models.Stock || mongoose.model("Stock", stockSchema, "stocks");
 
 let liveStocksCache = [];
 
@@ -323,8 +363,8 @@ const loadInitialStocks = async () => {
       symbol: stock.symbol,
       token: String(stock.token).trim(),
       name: stock.name,
-      price: stock.price,
-      closePrice: stock.price,
+      price: stock.price || 100,
+      closePrice: stock.price || 100,
       category: stock.category || "EQUITY",
       lotSize: stock.lotSize || 1,
       exchangeType: stock.exchangeType || 1,
@@ -332,6 +372,35 @@ const loadInitialStocks = async () => {
       percentChange: 0,
       isLoss: false,
     }));
+
+    let snx = liveStocksCache.find((s) => s.symbol === "SENSEX");
+    const sensexObj = {
+      symbol: "SENSEX",
+      name: "BSE SENSEX",
+      token: "99919000",
+      price: 73556.00,
+      closePrice: 73556.00,
+      category: "EQUITY",
+      lotSize: 1,
+      exchangeType: 3,
+      change: 0.00,
+      percentChange: 0.00,
+      isLoss: false,
+    };
+
+    if (!snx) {
+      const bnfIdx = liveStocksCache.findIndex((s) => s.symbol === "BANKNIFTY");
+      if (bnfIdx !== -1) {
+        liveStocksCache.splice(bnfIdx + 1, 0, sensexObj);
+      } else {
+        liveStocksCache.unshift(sensexObj);
+      }
+    } else {
+      snx.token = "99919000";
+      snx.price = 73556.00;
+      snx.closePrice = 73556.00;
+    }
+
     console.log(`Loaded ${liveStocksCache.length} instruments into Live Engine.`);
     initAngelOneEngine();
   } catch (err) {
@@ -339,21 +408,19 @@ const loadInitialStocks = async () => {
   }
 };
 
-// --- ANGEL ONE SMARTAPI LIVE WEBSOCKET ENGINE ---
+// --- ANGEL ONE ENGINE ---
 const initAngelOneEngine = async () => {
   try {
     const smart_api = new SmartAPI({
       api_key: process.env.ANGEL_API_KEY,
     });
 
-    // Auto-generate TOTP using Secret Key
     const totp = speakeasy.totp({
       secret: process.env.ANGEL_TOTP_SECRET,
       encoding: "base32",
     });
 
     console.log("Authenticating with Angel One SmartAPI...");
-
     const sessionData = await smart_api.generateSession(
       process.env.ANGEL_CLIENT_ID,
       process.env.ANGEL_MPIN,
@@ -369,6 +436,63 @@ const initAngelOneEngine = async () => {
     const feedToken = sessionData.data.feedToken;
     const jwtToken = sessionData.data.jwtToken;
 
+    // --- EXACT OFFICIAL SENSEX TICK (100% MATCH WITH ANGEL ONE LIVE) ---
+    const fetchExactSensexLive = async () => {
+      try {
+        let ltp = null;
+        let close = null;
+
+        // Try Angel One SmartAPI direct LTP
+        try {
+          const res = await smart_api.getLTP({
+            exchange: "BSE",
+            tradingsymbol: "SENSEX",
+            symboltoken: "99919000",
+          });
+          if (res?.data?.ltp && Number(res.data.ltp) > 0) {
+            ltp = Number(res.data.ltp);
+            close = Number(res.data.close || res.data.prevClose || ltp);
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        // Secondary Exact Live Feed backup jar SmartAPI Index restrict asel
+        if (!ltp || isNaN(ltp)) {
+          const feedRes = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/%5EBSESN?interval=1m");
+          const feedData = await feedRes.json();
+          const meta = feedData?.chart?.result?.[0]?.meta;
+          if (meta?.regularMarketPrice) {
+            ltp = Number(meta.regularMarketPrice);
+            close = Number(meta.chartPreviousClose || meta.previousClose || ltp);
+          }
+        }
+
+        if (ltp && !isNaN(ltp)) {
+          const snxIndex = liveStocksCache.findIndex((s) => s.symbol === "SENSEX");
+          if (snxIndex !== -1) {
+            const actualClose = close && close > 0 ? close : liveStocksCache[snxIndex].closePrice;
+            const actualChange = Number((ltp - actualClose).toFixed(2));
+            const actualPct = actualClose > 0 ? Number(((actualChange / actualClose) * 100).toFixed(2)) : 0;
+
+            liveStocksCache[snxIndex].price = ltp;
+            liveStocksCache[snxIndex].closePrice = actualClose;
+            liveStocksCache[snxIndex].change = actualChange;
+            liveStocksCache[snxIndex].percentChange = actualPct;
+            liveStocksCache[snxIndex].isLoss = actualChange < 0;
+
+            io.emit("market-tick", liveStocksCache);
+          }
+        }
+      } catch (err) {
+        // error handled
+      }
+    };
+
+    // Live exact rate fetch every 1 second
+    fetchExactSensexLive();
+    setInterval(fetchExactSensexLive, 1000);
+
     const webSocket = new WebSocketV2({
       jwttoken: jwtToken,
       apikey: process.env.ANGEL_API_KEY,
@@ -376,7 +500,6 @@ const initAngelOneEngine = async () => {
       feedtype: feedToken,
     });
 
-    // Central function to parse and update incoming ticks
     const handleIncomingTick = (data) => {
       if (!data) return;
 
@@ -386,50 +509,53 @@ const initAngelOneEngine = async () => {
       const cleanToken = String(rawToken).replace(/"/g, "").trim();
       const rawPrice = Number(data.last_traded_price || data.ltp);
 
-      if (cleanToken && !isNaN(rawPrice)) {
-        const matchingIndex = liveStocksCache.findIndex(
-          (s) => String(s.token).trim() === cleanToken
-        );
-
-        if (matchingIndex !== -1) {
-          // Convert price from paise to rupees
-          const newPrice = Number((rawPrice / 100).toFixed(2));
-          const stock = liveStocksCache[matchingIndex];
-
-          // Extract previous close price if available in packet
-          let closePrice = stock.closePrice;
-          if (data.close_price || data.c) {
-            closePrice = Number((Number(data.close_price || data.c) / 100).toFixed(2));
-            stock.closePrice = closePrice;
+      if (cleanToken && !isNaN(rawPrice) && rawPrice > 0) {
+        const matchingIndices = [];
+        liveStocksCache.forEach((s, idx) => {
+          if (String(s.token).trim() === cleanToken) {
+            matchingIndices.push(idx);
           }
+        });
 
-          const referencePrice = closePrice && closePrice > 0 ? closePrice : stock.price;
-          const changeFromClose = Number((newPrice - referencePrice).toFixed(2));
-          const percentChange = Number(((changeFromClose / referencePrice) * 100).toFixed(2));
-          const isLoss = changeFromClose < 0;
+        if (matchingIndices.length > 0) {
+          const newPrice = Number((rawPrice / 100).toFixed(2));
 
-          liveStocksCache[matchingIndex] = {
-            ...stock,
-            price: newPrice,
-            change: changeFromClose,
-            percentChange: percentChange,
-            isLoss: isLoss,
-          };
+          matchingIndices.forEach((matchingIndex) => {
+            const stock = liveStocksCache[matchingIndex];
+
+            let closePrice = stock.closePrice;
+            if (data.close_price || data.c) {
+              closePrice = Number((Number(data.close_price || data.c) / 100).toFixed(2));
+              stock.closePrice = closePrice;
+            }
+
+            const referencePrice = closePrice && closePrice > 0 ? closePrice : stock.price;
+            const changeFromClose = Number((newPrice - referencePrice).toFixed(2));
+            const percentChange = Number(((changeFromClose / referencePrice) * 100).toFixed(2));
+
+            liveStocksCache[matchingIndex] = {
+              ...stock,
+              price: newPrice,
+              change: changeFromClose,
+              percentChange: percentChange,
+              isLoss: changeFromClose < 0,
+            };
+          });
+
+          // ETITHE TO CHUKICHA 3.195 MULTIPLIER FORMULA KADHUN TAKLA AHE!
+          // SENSEX ata direct Angel One chya live bhavavr ch chalel, overwrite honar nahi.
 
           io.emit("market-tick", liveStocksCache);
         }
       }
     };
 
-    // Attach WebSocket listeners
     webSocket.customdata = (data) => handleIncomingTick(data);
     webSocket.on("tick", (data) => handleIncomingTick(data));
     webSocket.on("data", (data) => handleIncomingTick(data));
     webSocket.on("error", (error) => console.error("SmartAPI WebSocket Error:", error));
     webSocket.on("close", () => console.log("SmartAPI WebSocket disconnected."));
 
-    // Connect & Subscribe to tokens
-   // Connect & Subscribe to tokens
     webSocket
       .connect()
       .then(() => {
@@ -437,37 +563,39 @@ const initAngelOneEngine = async () => {
 
         const nseTokens = liveStocksCache
           .filter((s) => s.exchangeType === 1 || !s.exchangeType)
-          .map((s) => String(s.token));
+          .map((s) => String(s.token).trim());
 
-        const bseTokens = liveStocksCache
-          .filter((s) => s.exchangeType === 3)
-          .map((s) => String(s.token));
+        const nfoTokens = liveStocksCache
+          .filter((s) => s.exchangeType === 2)
+          .map((s) => String(s.token).trim());
 
-        // Subscribe NSE tokens in safe batches of 50
-        const chunkSize = 50;
-        for (let i = 0; i < nseTokens.length; i += chunkSize) {
-          const chunk = nseTokens.slice(i, i + chunkSize);
-          webSocket.fetchData({
-            correlationID: `novus_nse_${i}`,
-            action: 1,
-            mode: 2, // Quote Mode
-            exchangeType: 1, // Root level exchangeType required by WebSocketV2
-            tokens: chunk,
-          });
-        }
+        const bseTokens = Array.from(
+          new Set([
+            ...liveStocksCache
+              .filter((s) => s.exchangeType === 3)
+              .map((s) => String(s.token).trim()),
+            "99919000",
+            "1",
+          ])
+        );
 
-        // Subscribe BSE tokens (Sensex)
-        if (bseTokens.length > 0) {
-          webSocket.fetchData({
-            correlationID: "novus_bse_sensex",
-            action: 1,
-            mode: 2,
-            exchangeType: 3, // Root level exchangeType for BSE
-            tokens: bseTokens,
-          });
-        }
+        const subscribeBatch = (tokens, exchangeType, correlationPrefix) => {
+          const chunkSize = 50;
+          for (let i = 0; i < tokens.length; i += chunkSize) {
+            const chunk = tokens.slice(i, i + chunkSize);
+            webSocket.fetchData({
+              correlationID: `${correlationPrefix}_${i}`,
+              action: 1,
+              mode: 2,
+              exchangeType: exchangeType,
+              tokens: chunk,
+            });
+          }
+        };
 
-        console.log(`Subscribed to all ${liveStocksCache.length} instruments successfully.`);
+        if (nseTokens.length > 0) subscribeBatch(nseTokens, 1, "novus_nse");
+        if (nfoTokens.length > 0) subscribeBatch(nfoTokens, 2, "novus_nfo");
+        if (bseTokens.length > 0) subscribeBatch(bseTokens, 3, "novus_bse");
       })
       .catch((err) => {
         console.error("Socket connection error:", err);
@@ -477,48 +605,14 @@ const initAngelOneEngine = async () => {
   }
 };
 
-// Initial stocks API for WatchList hydration
 app.get("/api/stocks", (req, res) => {
   res.json(liveStocksCache);
 });
 
-// Initialize stock loading and WebSocket engine
 loadInitialStocks();
 
-// Client connection handler
 io.on("connection", (socket) => {
-  console.log(`Trader connected to live stream: ${socket.id}`);
   if (liveStocksCache.length > 0) {
     socket.emit("market-tick", liveStocksCache);
   }
-
-  socket.on("disconnect", () => {
-    console.log(`Trader disconnected: ${socket.id}`);
-  });
 });
-
-// --- LIVE MARKET HOURS & TICK SYNC ENGINE ---
-const isIndianMarketOpen = () => {
-  const now = new Date();
-  // भारतीय प्रमाणवेळेनुसार (IST) रूपांतर
-  const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  const day = istTime.getDay(); // 0 = Sunday, 6 = Saturday
-  const hours = istTime.getHours();
-  const minutes = istTime.getMinutes();
-  const currentTime = hours * 60 + minutes;
-
-  // सोमवार ते शुक्रवार (Day 1 to 5) आणि वेळ 9:15 AM (555 min) ते 3:30 PM (930 min)
-  const isWeekday = day >= 1 && day <= 5;
-  const isMarketHours = currentTime >= 555 && currentTime <= 930;
-
-  return isWeekday && isMarketHours;
-};
-
-// दर १ सेकंदाला कॅशे सिंक ठेवणे
-setInterval(() => {
-  // बाजार चालू असेल तरच किंवा कॅशेमध्ये बदल झाल्यास टिक पाठवणे
-  if (isIndianMarketOpen() && liveStocksCache.length > 0) {
-    io.emit("market-tick", liveStocksCache);
-  }
-}, 1000);
-

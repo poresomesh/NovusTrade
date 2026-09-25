@@ -8,7 +8,7 @@ const Hero = () => {
         {/* Main Hero Illustration */}
         <div className="flex justify-center">
           <img
-            src="media/homeHero.png"
+            src="media/NovusTradeDashboard.png"
             alt="NovusTrade Investment Platform"
             className="w-full max-w-3xl drop-shadow-sm transition-transform duration-300 hover:scale-[1.01]"
           />

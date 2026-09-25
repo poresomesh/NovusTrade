@@ -19,7 +19,12 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Your password is required"],
     },
+    funds: { 
+      type: Number, 
+      default: 50000 
+    },
   },
+  
   {
     timestamps: true, // Automatically manages createdAt and updatedAt fields
   }

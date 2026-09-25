@@ -32,6 +32,23 @@ function Brokerage() {
                     <a href="#" className="text-decoration-none">
                         <h3 className="fs-5 mb-4 text-center text-primary">List of charges</h3>
                     </a>
+                     <ul className="text-muted fs-6" >
+                        <li>
+                            STT/CTT: 0.1% on delivery buy & sell, 0.025% on intraday sell.
+                        </li>
+                        <li>
+                            Transaction Charges: NSE ₹0.00297%, BSE ₹0.00375%.
+                        </li>
+                        <li>
+                            GST: 18% on (Brokerage + SEBI charges + Transaction charges).
+                        </li>
+                        <li>
+                            SEBI Turnover Charges: ₹10 per crore across all segments.
+                        </li>
+                        <li>
+                            Stamp Duty: 0.015% on buy side only.
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

@@ -9,12 +9,12 @@ const Footer = () => {
           {/* Brand & Legal Info */}
           <div className="space-y-4 md:col-span-4">
             <img
-              src="media/images/logo.svg"
+              src="media/NovusTradeLogo.png"
               alt="NovusTrade"
               className="h-5 w-auto"
             />
             <p className="text-xs leading-relaxed text-slate-500">
-              © 2010 - 2026, NovusTrade Broking Ltd. All rights reserved.
+              © 2026, NovusTrade Broking Ltd. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
               <span className="hover:text-blue-600 cursor-pointer">Twitter</span>
@@ -94,7 +94,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/login" className="hover:text-blue-600 transition-colors">
-                  Login to Kite
+                  Login to NovusTrade
                 </Link>
               </li>
               <li>
