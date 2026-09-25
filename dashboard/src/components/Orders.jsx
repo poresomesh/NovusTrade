@@ -17,7 +17,7 @@ const Orders = () => {
   const fetchOrders = useCallback(() => {
     setLoading(true);
     axios
-      .get(`http://localhost:3002/allOrders?${getQueryCredentials()}`, {
+      .get(`https://novustrade-backend.onrender.com/allOrders?${getQueryCredentials()}`, {
         withCredentials: true,
       })
       .then((res) => {

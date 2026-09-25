@@ -28,7 +28,7 @@ const Signup = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:3002/signup",
+        "https://novustrade-backend.onrender.com/signup",
         { ...inputValue },
         { withCredentials: true }
       );

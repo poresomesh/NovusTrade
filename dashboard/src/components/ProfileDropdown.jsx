@@ -18,7 +18,7 @@ const ProfileDropdown = ({ user, onClose, onLogout }) => {
         const queryUserId = params.get("userId") || user?.id || localStorage.getItem("userId") || "";
         
         const res = await axios.get(
-          `http://localhost:3002/userFunds?userId=${queryUserId}&email=${encodeURIComponent(queryEmail)}`
+          `https://novustrade-backend.onrender.com/userFunds?userId=${queryUserId}&email=${encodeURIComponent(queryEmail)}`
         );
         if (res.data && typeof res.data.funds === "number") {
           setAvailableFunds(res.data.funds);
@@ -51,7 +51,7 @@ const ProfileDropdown = ({ user, onClose, onLogout }) => {
   const handleFullLogout = async () => {
     try {
       // 1. बॅकएंडवर लॉगआउट रिक्वेस्ट पाठवणे
-      await axios.post("http://localhost:3002/logout", {}, { withCredentials: true });
+      await axios.post("https://novustrade-backend.onrender.com/logout", {}, { withCredentials: true });
     } catch (err) {
       console.warn("Backend logout warning:", err.message);
     } finally {

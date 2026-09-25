@@ -18,9 +18,9 @@ const Summary = () => {
         const userId = params.get("userId") || localStorage.getItem("userId") || "";
 
         const [fundsRes, ordersRes, holdingsRes] = await Promise.all([
-          axios.get(`http://localhost:3002/userFunds?userId=${userId}&email=${encodeURIComponent(email)}`),
-          axios.get(`http://localhost:3002/allOrders?userId=${userId}&email=${encodeURIComponent(email)}`),
-          axios.get(`http://localhost:3002/allHoldings?userId=${userId}&email=${encodeURIComponent(email)}`),
+          axios.get(`https://novustrade-backend.onrender.com/userFunds?userId=${userId}&email=${encodeURIComponent(email)}`),
+          axios.get(`https://novustrade-backend.onrender.com/allOrders?userId=${userId}&email=${encodeURIComponent(email)}`),
+          axios.get(`https://novustrade-backend.onrender.com/allHoldings?userId=${userId}&email=${encodeURIComponent(email)}`),
         ]);
 
         if (fundsRes.data && typeof fundsRes.data.funds === "number") {

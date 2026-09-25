@@ -14,7 +14,7 @@ const Funds = () => {
   const fetchFundsAndMargin = async () => {
     try {
       // 1. Live Available Funds fetch karne
-      const fundsRes = await axios.get("http://localhost:3002/userFunds", {
+      const fundsRes = await axios.get("https://novustrade-backend.onrender.com/userFunds", {
         params: { userId, email: userEmail },
         withCredentials: true,
       });
@@ -24,7 +24,7 @@ const Funds = () => {
       }
 
       // 2. Used Margin sathi Holdings calculate karne
-      const holdingsRes = await axios.get("http://localhost:3002/allHoldings", {
+      const holdingsRes = await axios.get("https://novustrade-backend.onrender.com/allHoldings", {
         params: { userId, email: userEmail },
         withCredentials: true,
       });

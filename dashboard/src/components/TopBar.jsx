@@ -4,12 +4,16 @@ import { io } from "socket.io-client";
 import Menu from "./Menu";
 import ProfileDropdown from "./ProfileDropdown";
 import TradingViewChart from "./TradingViewChart";
-// तुमच्या प्रोजेक्टच्या रचनेनुसार NewLogo.png इम्पोर्ट करा:
 import newLogo from "../assets/NewLogo.png";
 
-// Socket instance (डॅशबोर्डच्या सॉकेटशी कनेक्ट)
-const socket = io("http://localhost:3002", {
+const BACKEND_URL = "https://novustrade-backend.onrender.com";
+
+// Render Backend Socket Connection
+const socket = io(BACKEND_URL, {
+  transports: ["websocket", "polling"],
   withCredentials: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
 });
 
 const TopBar = ({ user, onLogout }) => {
@@ -19,14 +23,14 @@ const TopBar = ({ user, onLogout }) => {
 
   const username = user?.username || localStorage.getItem("username") || "somesh";
 
-  // रिअल-टाइम लाइव्ह इंडायसेस स्टेट
+  // Real-time live indices state
   const [liveIndices, setLiveIndices] = useState({
     nifty: { price: 23346.90, change: 129.30, percent: 0.56, isUp: true },
     sensex: { price: 81500.00, change: 0.00, percent: 0.00, isUp: true },
     banknifty: { price: 56364.05, change: 71.60, percent: 0.13, isUp: true },
   });
 
-  // बॅकएंड सॉकेटवरून येणारे रिअल-टाइम टिक्स ऐकणे
+  // Listen to live market ticks from backend
   useEffect(() => {
     const handleMarketTick = (liveCache) => {
       if (!Array.isArray(liveCache) || liveCache.length === 0) return;
@@ -84,7 +88,6 @@ const TopBar = ({ user, onLogout }) => {
     };
   }, []);
 
-  // लाइव्ह व्हॅल्यूजनुसार फॉरमॅट केलेली यादी
   const indices = [
     {
       name: "NIFTY 50",
@@ -118,7 +121,6 @@ const TopBar = ({ user, onLogout }) => {
     },
   ];
 
-  // लोगोवर क्लिक केल्यावर थेट "/" (TradingAssistant) वर जाण्यासाठी
   const handleLogoClick = () => {
     navigate({
       pathname: "/",
@@ -132,7 +134,6 @@ const TopBar = ({ user, onLogout }) => {
       <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-2xs">
         {/* Row 1: Logo & Nav */}
         <div className="flex h-14 items-center justify-between px-6">
-          {/* Logo Container (Clickable to "/") */}
           <div
             onClick={handleLogoClick}
             className="flex items-center gap-3 cursor-pointer group select-none"
@@ -194,7 +195,7 @@ const TopBar = ({ user, onLogout }) => {
         </div>
       </header>
 
-      {/* Index Candle Chart Modal with Buy & Sell */}
+      {/* Index Candle Chart Modal */}
       {activeChartIndex && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col w-full max-w-5xl h-[680px] p-5">

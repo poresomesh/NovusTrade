@@ -26,7 +26,7 @@ const BuyActionWindow = ({ uid }) => {
 
     try {
       setIsSubmitting(true);
-      await axios.post("http://localhost:3002/newOrder", {
+      await axios.post("https://novustrade-backend.onrender.com/newOrder", {
         name: uid,
         qty: Number(stockQuantity),
         price: Number(stockPrice),

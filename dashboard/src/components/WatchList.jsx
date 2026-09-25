@@ -142,8 +142,8 @@ const WatchList = () => {
   useEffect(() => {
     const fetchStocks = async () => {
       try {
-        let res = await fetch("http://localhost:3002/api/stocks");
-        if (!res.ok) res = await fetch("http://localhost:3002/allHoldings");
+        let res = await fetch("https://novustrade-backend.onrender.com/api/stocks");
+        if (!res.ok) res = await fetch("https://novustrade-backend.onrender.com/allHoldings");
         const data = await res.json();
         if (Array.isArray(data)) {
           setStocks(data);
@@ -155,7 +155,7 @@ const WatchList = () => {
     };
     fetchStocks();
 
-    const socket = io("http://localhost:3002", {
+    const socket = io("https://novustrade-backend.onrender.com", {
       transports: ["websocket", "polling"],
       withCredentials: true,
     });
@@ -201,7 +201,7 @@ const WatchList = () => {
     const targetStock = orderModal.stock;
 
     try {
-      const res = await axios.post("http://localhost:3002/newOrder", payload, {
+      const res = await axios.post("https://novustrade-backend.onrender.com/newOrder", payload, {
         withCredentials: true,
       });
 

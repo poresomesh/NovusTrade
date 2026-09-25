@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 
+const BACKEND_URL = "https://novustrade-backend.onrender.com";
+
 const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,7 +20,7 @@ const Holdings = () => {
   const fetchHoldings = useCallback(() => {
     setLoading(true);
     axios
-      .get(`http://localhost:3002/allHoldings?${getQueryCredentials()}`, {
+      .get(`${BACKEND_URL}/allHoldings?${getQueryCredentials()}`, {
         withCredentials: true,
       })
       .then((res) => {

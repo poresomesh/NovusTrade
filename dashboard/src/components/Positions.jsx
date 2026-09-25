@@ -22,7 +22,7 @@ const Positions = () => {
   const fetchPositions = useCallback(() => {
     setLoading(true);
     axios
-      .get(`http://localhost:3002/allPositions?${getQueryCredentials()}`, {
+      .get(`https://novustrade-backend.onrender.com/allPositions?${getQueryCredentials()}`, {
         withCredentials: true,
       })
       .then((res) => {
